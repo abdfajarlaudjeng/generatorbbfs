@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>BBFS 2D Generator Multi Baris</title>
+  <title>BBFS 2D Generator + Filter Main & Shio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -32,11 +32,13 @@
 </head>
 <body>
 
-<h2>BBFS 2D Generator + Filter Multi Baris Angka Main</h2>
+<h2>BBFS 2D Generator + Filter Angka Main & Shio</h2>
 
 <input type="text" id="bbfsInput" placeholder="Masukkan 8 digit BBFS (misal: 12345678)" maxlength="8">
 
 <textarea id="angkaMain" rows="5" placeholder="Masukkan angka main per baris (maks 5 baris). Baris terakhir akan digunakan."></textarea>
+
+<input type="text" id="shioInput" placeholder="Masukkan nomor Shio (1–12), pisahkan dengan koma/spasi">
 
 <button onclick="generateFiltered2D()">Generate Filtered 2D</button>
 
@@ -47,6 +49,7 @@
 function generateFiltered2D() {
   const bbfs = document.getElementById("bbfsInput").value.trim();
   const angkaMainText = document.getElementById("angkaMain").value.trim();
+  const shioInput = document.getElementById("shioInput").value.trim();
   const output = document.getElementById("output");
   const totalBox = document.getElementById("total");
 
@@ -59,20 +62,24 @@ function generateFiltered2D() {
   }
 
   const lines = angkaMainText.split('\n').map(l => l.trim()).filter(l => l !== '');
-
   if (lines.length === 0 || lines.length > 5) {
     alert("Masukkan minimal 1 dan maksimal 5 baris angka main.");
     return;
   }
 
   const lastLine = lines[lines.length - 1];
-
   if (!/^\d{1,10}$/.test(lastLine)) {
     alert("Baris terakhir angka main harus berisi angka 1–10 digit.");
     return;
   }
 
   const filterSet = new Set(lastLine.split(''));
+  const shioNums = shioInput.split(/[, ]+/).map(s => parseInt(s)).filter(n => n >= 1 && n <= 12);
+  if (shioNums.length === 0) {
+    alert("Masukkan minimal satu nomor Shio antara 1–12.");
+    return;
+  }
+
   const digits = bbfs.split('');
   const results = [];
 
@@ -82,9 +89,14 @@ function generateFiltered2D() {
       const d2 = digits[j];
       const combo = d1 + d2;
 
-      const match = filterSet.has(d1) || filterSet.has(d2); // filter main & ekor
-      if (match) {
-        results.push(combo);
+      const matchMain = filterSet.has(d1) || filterSet.has(d2);
+      const combo2D = parseInt(combo, 10);
+      const shioMod = (combo2D % 12) === 0 ? 12 : combo2D % 12;
+
+      const matchShio = shioNums.includes(shioMod);
+
+      if (matchMain && matchShio) {
+        results.push(combo.padStart(2, '0'));
       }
     }
   }
