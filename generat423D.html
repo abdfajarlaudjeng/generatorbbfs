@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>BBFS Generator 2D 3D 4D + Filter Shio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 { margin-bottom: 10px; }
+    .tabs button {
+      padding: 10px;
+      margin-right: 5px;
+      border: none;
+      background: #eee;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .tabs button.active {
+      background: #4285f4;
+      color: white;
+    }
+    .panel {
+      display: none;
+      margin-top: 20px;
+    }
+    .panel.active {
+      display: block;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    textarea.output {
+      height: 250px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>BBFS Generator 2D, 3D, 4D + Filter Shio</h2>
+
+<div class="tabs">
+  <button class="tabBtn active" onclick="showTab('panel2d')">2D</button>
+  <button class="tabBtn" onclick="showTab('panel3d')">3D</button>
+  <button class="tabBtn" onclick="showTab('panel4d')">4D</button>
+</div>
+
+<!-- Panel 2D -->
+<div id="panel2d" class="panel active">
+  <input id="bbfs2d" placeholder="Masukkan 8 digit BBFS">
+  <textarea id="main2d" placeholder="Angka main (baris terakhir digunakan)" rows="5"></textarea>
+  <input id="shio2d" placeholder="Nomor Shio 1–12, pisahkan dengan koma/spasi">
+  <button onclick="generateBBFS('2d')">Generate 2D</button>
+  <textarea id="output2d" class="output" readonly></textarea>
+  <div id="total2d" class="total"></div>
+</div>
+
+<!-- Panel 3D -->
+<div id="panel3d" class="panel">
+  <input id="bbfs3d" placeholder="Masukkan 8 digit BBFS">
+  <textarea id="main3d" placeholder="Angka main (baris terakhir digunakan)" rows="5"></textarea>
+  <input id="shio3d" placeholder="Nomor Shio 1–12, pisahkan dengan koma/spasi">
+  <button onclick="generateBBFS('3d')">Generate 3D</button>
+  <textarea id="output3d" class="output" readonly></textarea>
+  <div id="total3d" class="total"></div>
+</div>
+
+<!-- Panel 4D -->
+<div id="panel4d" class="panel">
+  <input id="bbfs4d" placeholder="Masukkan 8 digit BBFS">
+  <textarea id="main4d" placeholder="Angka main (baris terakhir digunakan)" rows="5"></textarea>
+  <input id="shio4d" placeholder="Nomor Shio 1–12, pisahkan dengan koma/spasi">
+  <button onclick="generateBBFS('4d')">Generate 4D</button>
+  <textarea id="output4d" class="output" readonly></textarea>
+  <div id="total4d" class="total"></div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tabBtn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function generateBBFS(mode) {
+  const bbfs = document.getElementById('bbfs' + mode).value.trim();
+  const mainText = document.getElementById('main' + mode).value.trim();
+  const shioInput = document.getElementById('shio' + mode).value.trim();
+  const output = document.getElementById('output' + mode);
+  const total = document.getElementById('total' + mode);
+
+  output.value = '';
+  total.textContent = '';
+
+  if (!/^\d{8}$/.test(bbfs)) return alert("BBFS harus 8 digit.");
+  const lines = mainText.split('\n').filter(l => l.trim());
+  if (lines.length === 0 || lines.length > 5) return alert("Masukkan 1–5 baris angka main.");
+  const filterSet = new Set(lines.at(-1).split(''));
+  const shioSet = new Set(shioInput.split(/[, ]+/).map(s => parseInt(s)).filter(n => n >= 1 && n <= 12));
+  if (!shioSet.size) return alert("Masukkan minimal satu nomor shio.");
+
+  const d = bbfs.split('');
+  const hasil = [];
+  const len = mode === '2d' ? 2 : (mode === '3d' ? 3 : 4);
+
+  const loop = (prefix = '') => {
+    if (prefix.length === len) {
+      const last2D = parseInt(prefix.slice(-2), 10);
+      const shioNomor = (last2D % 12) || 12;
+      const matchMain = prefix.split('').some(ch => filterSet.has(ch));
+      if (matchMain && shioSet.has(shioNomor)) hasil.push(prefix);
+      return;
+    }
+    for (let x of d) loop(prefix + x);
+  };
+  loop();
+
+  output.value = hasil.join('\n');
+  total.textContent = `Total kombinasi: ${hasil.length}`;
+}
+</script>
+
+</body>
+</html>
