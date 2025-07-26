@@ -55,7 +55,7 @@
   <button class="tabBtn" onclick="showTab('panel4d')">4D</button>
 </div>
 
-<!-- Panel Template -->
+<!-- Panel 2D -->
 <div id="panel2d" class="panel active">
   <input id="bbfs2d" placeholder="Masukkan 8 digit BBFS">
   <textarea id="main2d" rows="5" placeholder="Angka main (baris terakhir digunakan)"></textarea>
@@ -70,10 +70,12 @@
   </div>
   <button onclick="generateBBFS('2d')">Generate 2D</button>
   <button onclick="applyPositionalFilter('2d')">Terapkan Filter Posisi</button>
+  <button onclick="copyOutput('2d')">Salin Semua Hasil</button>
   <textarea id="output2d" class="output" readonly></textarea>
   <div id="total2d" class="total"></div>
 </div>
 
+<!-- Panel 3D -->
 <div id="panel3d" class="panel">
   <input id="bbfs3d" placeholder="Masukkan 8 digit BBFS">
   <textarea id="main3d" rows="5" placeholder="Angka main (baris terakhir digunakan)"></textarea>
@@ -91,10 +93,12 @@
   </div>
   <button onclick="generateBBFS('3d')">Generate 3D</button>
   <button onclick="applyPositionalFilter('3d')">Terapkan Filter Posisi</button>
+  <button onclick="copyOutput('3d')">Salin Semua Hasil</button>
   <textarea id="output3d" class="output" readonly></textarea>
   <div id="total3d" class="total"></div>
 </div>
 
+<!-- Panel 4D -->
 <div id="panel4d" class="panel">
   <input id="bbfs4d" placeholder="Masukkan 8 digit BBFS">
   <textarea id="main4d" rows="5" placeholder="Angka main (baris terakhir digunakan)"></textarea>
@@ -115,6 +119,7 @@
   </div>
   <button onclick="generateBBFS('4d')">Generate 4D</button>
   <button onclick="applyPositionalFilter('4d')">Terapkan Filter Posisi</button>
+  <button onclick="copyOutput('4d')">Salin Semua Hasil</button>
   <textarea id="output4d" class="output" readonly></textarea>
   <div id="total4d" class="total"></div>
 </div>
@@ -160,7 +165,7 @@ function generateBBFS(mode) {
   };
   loop();
 
-  output.value = hasil.join('\n');
+  output.value = hasil.join('*');
   total.textContent = `Total kombinasi: ${hasil.length}`;
 }
 
@@ -168,7 +173,14 @@ function applyPositionalFilter(mode) {
   const panel = document.getElementById('panel' + mode);
   const output = document.getElementById('output' + mode);
   const total = document.getElementById('total' + mode);
-  const lines = output.value.trim().split('\n').filter(x => x);
+  const rawText = output.value.trim();
+
+  if (!rawText) {
+    alert("Belum ada kombinasi. Silakan klik 'Generate' dulu.");
+    return;
+  }
+
+  const lines = rawText.split(/[\s*]+/).filter(x => x);
   const checkboxes = panel.querySelectorAll('.pos-filter');
   const filters = {};
 
@@ -181,6 +193,11 @@ function applyPositionalFilter(mode) {
     }
   });
 
+  if (Object.keys(filters).length === 0) {
+    alert("Tidak ada filter posisi yang dipilih.");
+    return;
+  }
+
   const hasil = lines.filter(line => {
     const len = line.length;
     for (let pos in filters) {
@@ -188,18 +205,25 @@ function applyPositionalFilter(mode) {
       let digit = null;
 
       if (pos === 'as' && len >= 1) digit = line[0];
-      else if (pos === 'kop' && len >= 2) digit = line[1];
-      else if (pos === 'kepala' && len >= 3) digit = line[2];
-      else if (pos === 'ekor' && len >= 1) digit = line[len - 1];
-      else return false;
+      if (pos === 'kop' && len >= 2) digit = line[1];
+      if (pos === 'kepala' && len >= 3) digit = line[2];
+      if (pos === 'ekor' && len >= 1) digit = line[len - 1];
 
-      if (!valSet.has(digit)) return false;
+      if (digit === null || !valSet.has(digit)) return false;
     }
     return true;
   });
 
-  output.value = hasil.join('\n');
+  output.value = hasil.join('*');
   total.textContent = `Total kombinasi (setelah filter posisi): ${hasil.length}`;
+}
+
+function copyOutput(mode) {
+  const output = document.getElementById('output' + mode);
+  if (!output.value.trim()) return alert("Tidak ada data untuk disalin.");
+  output.select();
+  document.execCommand('copy');
+  alert("Hasil berhasil disalin ke clipboard!");
 }
 </script>
 
