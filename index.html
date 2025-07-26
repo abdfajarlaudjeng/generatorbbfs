@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Acak 4 Digit + Sisa (20 Baris)</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { font-size: 16px; padding: 6px; margin: 5px 0; }
+    table { margin-top: 20px; border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+
+<h2>Masukkan Angka (6–9 digit unik, tanpa angka berulang)</h2>
+<input type="text" id="angkaInput" placeholder="Contoh: 1234567" maxlength="9">
+<button onclick="acak20Baris()">Acak & Tampilkan 20 Baris</button>
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>4 Digit</th>
+      <th>Sisa Digit</th>
+      <th>Besar</th>
+      <th>Kecil</th>
+      <th>Ganjil</th>
+      <th>Genap</th>
+    </tr>
+  </thead>
+  <tbody id="hasilTabel"></tbody>
+</table>
+
+<script>
+function shuffle(str) {
+  const arr = str.split('');
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join('');
+}
+
+function hitungPola(digits) {
+  let besar = 0, kecil = 0, ganjil = 0, genap = 0;
+  for (let d of digits) {
+    const digit = parseInt(d);
+    if (digit >= 5) besar++; else kecil++;
+    if (digit % 2 === 0) genap++; else ganjil++;
+  }
+  return { besar, kecil, ganjil, genap };
+}
+
+function acak20Baris() {
+  const input = document.getElementById("angkaInput").value.trim();
+  const hasilTabel = document.getElementById("hasilTabel");
+  hasilTabel.innerHTML = '';
+
+  if (!/^\d{6,9}$/.test(input)) {
+    alert("Masukkan angka antara 6 sampai 9 digit.");
+    return;
+  }
+
+  const unik = new Set(input);
+  if (unik.size < input.length) {
+    alert("Angka tidak boleh ada yang berulang.");
+    return;
+  }
+
+  const jumlahBaris = 20;
+  const kombinasiSet = new Set();
+  let count = 0;
+
+  while (kombinasiSet.size < jumlahBaris) {
+    const acak = shuffle(input);
+    const d4 = acak.slice(0, 4);
+    const sisa = acak.slice(4);
+
+    const key = d4 + "-" + sisa;
+    if (kombinasiSet.has(key)) continue;
+    kombinasiSet.add(key);
+
+    const semua = d4 + sisa;
+    const pola = hitungPola(semua);
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${++count}</td>
+      <td>${d4}</td>
+      <td>${sisa}</td>
+      <td>${pola.besar}</td>
+      <td>${pola.kecil}</td>
+      <td>${pola.ganjil}</td>
+      <td>${pola.genap}</td>
+    `;
+    hasilTabel.appendChild(row);
+  }
+}
+</script>
+
+</body>
+</html>
