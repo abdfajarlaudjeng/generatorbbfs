@@ -2,42 +2,42 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>BBFS 2D Generator dengan Filter + Jumlah</title>
+  <title>BBFS 2D Generator Multi Baris</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
     }
-    input, button {
+    input, textarea, button {
       font-size: 16px;
       padding: 8px;
       width: 100%;
       box-sizing: border-box;
       margin-bottom: 10px;
     }
-    textarea {
-      width: 100%;
+    textarea#output {
       height: 300px;
       font-family: monospace;
       font-size: 14px;
-      margin-top: 10px;
     }
     #total {
-      margin-top: 10px;
       font-weight: bold;
       font-size: 16px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-<h2>BBFS 2D Generator + Filter Angka Main & Ekor</h2>
+<h2>BBFS 2D Generator + Filter Multi Baris Angka Main</h2>
 
-<input type="text" id="bbfsInput" placeholder="Masukkan 8 digit BBFS (contoh: 12345678)" maxlength="8">
-<input type="text" id="angkaMain" placeholder="Masukkan Angka Main (contoh: 135)">
+<input type="text" id="bbfsInput" placeholder="Masukkan 8 digit BBFS (misal: 12345678)" maxlength="8">
+
+<textarea id="angkaMain" rows="5" placeholder="Masukkan angka main per baris (maks 5 baris). Baris terakhir akan digunakan."></textarea>
+
 <button onclick="generateFiltered2D()">Generate Filtered 2D</button>
 
 <textarea id="output" readonly placeholder="Hasil kombinasi akan muncul di sini..."></textarea>
@@ -46,7 +46,7 @@
 <script>
 function generateFiltered2D() {
   const bbfs = document.getElementById("bbfsInput").value.trim();
-  const angkaMain = document.getElementById("angkaMain").value.trim();
+  const angkaMainText = document.getElementById("angkaMain").value.trim();
   const output = document.getElementById("output");
   const totalBox = document.getElementById("total");
 
@@ -57,13 +57,23 @@ function generateFiltered2D() {
     alert("Masukkan tepat 8 digit angka BBFS!");
     return;
   }
-  if (!/^\d{1,10}$/.test(angkaMain)) {
-    alert("Masukkan angka main (1 sampai 10 digit)!");
+
+  const lines = angkaMainText.split('\n').map(l => l.trim()).filter(l => l !== '');
+
+  if (lines.length === 0 || lines.length > 5) {
+    alert("Masukkan minimal 1 dan maksimal 5 baris angka main.");
     return;
   }
 
+  const lastLine = lines[lines.length - 1];
+
+  if (!/^\d{1,10}$/.test(lastLine)) {
+    alert("Baris terakhir angka main harus berisi angka 1–10 digit.");
+    return;
+  }
+
+  const filterSet = new Set(lastLine.split(''));
   const digits = bbfs.split('');
-  const filterSet = new Set(angkaMain.split(''));
   const results = [];
 
   for (let i = 0; i < digits.length; i++) {
@@ -72,10 +82,8 @@ function generateFiltered2D() {
       const d2 = digits[j];
       const combo = d1 + d2;
 
-      const matchMain = filterSet.has(d1) || filterSet.has(d2);
-      const matchEkor = filterSet.has(d2); // ekor adalah digit ke-2
-
-      if (matchMain || matchEkor) {
+      const match = filterSet.has(d1) || filterSet.has(d2); // filter main & ekor
+      if (match) {
         results.push(combo);
       }
     }
@@ -83,7 +91,6 @@ function generateFiltered2D() {
 
   if (results.length === 0) {
     output.value = "Tidak ada kombinasi yang cocok dengan filter.";
-    totalBox.textContent = '';
   } else {
     output.value = results.join('\n');
     totalBox.textContent = `Total kombinasi ditampilkan: ${results.length}`;
