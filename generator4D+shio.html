@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>BBFS 4D Generator + Filter Angka Main + Shio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    input, textarea, button {
+      font-size: 16px;
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    textarea#output {
+      height: 300px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    #total {
+      font-weight: bold;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>BBFS 4D Generator + Filter Angka Main + Shio</h2>
+
+<input type="text" id="bbfsInput" placeholder="Masukkan 8 digit BBFS (misal: 12345678)" maxlength="8">
+
+<textarea id="angkaMain" rows="5" placeholder="Masukkan angka main per baris (maks 5 baris). Baris terakhir akan digunakan."></textarea>
+
+<input type="text" id="shioInput" placeholder="Masukkan Nomor Shio (1–12), pisahkan dengan koma (misal: 1,2,3)">
+
+<button onclick="generateFiltered4D()">Generate 4D</button>
+
+<textarea id="output" readonly placeholder="Hasil kombinasi akan muncul di sini..."></textarea>
+<div id="total"></div>
+
+<script>
+function generateFiltered4D() {
+  const bbfs = document.getElementById("bbfsInput").value.trim();
+  const angkaMainText = document.getElementById("angkaMain").value.trim();
+  const shioInput = document.getElementById("shioInput").value.trim();
+  const output = document.getElementById("output");
+  const totalBox = document.getElementById("total");
+
+  output.value = '';
+  totalBox.textContent = '';
+
+  if (!/^\d{8}$/.test(bbfs)) {
+    alert("Masukkan tepat 8 digit angka BBFS!");
+    return;
+  }
+
+  const angkaMainLines = angkaMainText.split('\n').map(l => l.trim()).filter(l => l !== '');
+  if (angkaMainLines.length === 0 || angkaMainLines.length > 5) {
+    alert("Masukkan minimal 1 dan maksimal 5 baris angka main.");
+    return;
+  }
+
+  const angkaMainLast = angkaMainLines[angkaMainLines.length - 1];
+  if (!/^\d{1,10}$/.test(angkaMainLast)) {
+    alert("Baris terakhir angka main harus berisi angka 1–10 digit.");
+    return;
+  }
+
+  const filterSet = new Set(angkaMainLast.split(''));
+
+  // Proses Shio
+  const shioList = shioInput.split(/[, ]+/).map(s => parseInt(s)).filter(n => n >= 1 && n <= 12);
+  if (shioList.length === 0) {
+    alert("Masukkan setidaknya satu nomor Shio (1–12).");
+    return;
+  }
+  const allowedShio = new Set(shioList);
+
+  const digits = bbfs.split('');
+  const results = [];
+
+  for (let a = 0; a < digits.length; a++) {
+    for (let b = 0; b < digits.length; b++) {
+      for (let c = 0; c < digits.length; c++) {
+        for (let d = 0; d < digits.length; d++) {
+          const d1 = digits[a], d2 = digits[b], d3 = digits[c], d4 = digits[d];
+          const combo = d1 + d2 + d3 + d4;
+
+          const hasMain = filterSet.has(d1) || filterSet.has(d2) || filterSet.has(d3) || filterSet.has(d4);
+          const ekor2D = parseInt(combo.slice(-2), 10);
+          const shioNomor = (ekor2D % 12) + 1;
+
+          if (hasMain && allowedShio.has(shioNomor)) {
+            results.push(combo);
+          }
+        }
+      }
+    }
+  }
+
+  if (results.length === 0) {
+    output.value = "Tidak ada kombinasi yang cocok dengan filter.";
+  } else {
+    output.value = results.join('\n');
+    totalBox.textContent = `Total kombinasi ditampilkan: ${results.length}`;
+  }
+}
+</script>
+
+</body>
+</html>
