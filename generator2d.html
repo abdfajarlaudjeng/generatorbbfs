@@ -2,15 +2,19 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>BBFS 2D Generator (Tanpa *)</title>
+  <title>BBFS 2D Generator dengan Filter + Jumlah</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
     input, button {
       font-size: 16px;
       padding: 8px;
       width: 100%;
-      max-width: 400px;
       box-sizing: border-box;
       margin-bottom: 10px;
     }
@@ -21,37 +25,69 @@
       font-size: 14px;
       margin-top: 10px;
     }
+    #total {
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
 
-<h2>BBFS Generator (8 Digit → 64 Kombinasi 2D, Tanpa *)</h2>
-<input type="text" id="bbfsInput" placeholder="Masukkan 8 digit (contoh: 12345678)" maxlength="8">
-<button onclick="generateBBFS2D()">Generate 64 LINE</button>
+<h2>BBFS 2D Generator + Filter Angka Main & Ekor</h2>
 
-<textarea id="output" readonly placeholder="Hasil akan muncul di sini..."></textarea>
+<input type="text" id="bbfsInput" placeholder="Masukkan 8 digit BBFS (contoh: 12345678)" maxlength="8">
+<input type="text" id="angkaMain" placeholder="Masukkan Angka Main (contoh: 135)">
+<button onclick="generateFiltered2D()">Generate Filtered 2D</button>
+
+<textarea id="output" readonly placeholder="Hasil kombinasi akan muncul di sini..."></textarea>
+<div id="total"></div>
 
 <script>
-function generateBBFS2D() {
-  const input = document.getElementById("bbfsInput").value.trim();
+function generateFiltered2D() {
+  const bbfs = document.getElementById("bbfsInput").value.trim();
+  const angkaMain = document.getElementById("angkaMain").value.trim();
   const output = document.getElementById("output");
+  const totalBox = document.getElementById("total");
 
-  if (!/^\d{8}$/.test(input)) {
-    alert("Masukkan tepat 8 digit angka (0-9)!");
+  output.value = '';
+  totalBox.textContent = '';
+
+  if (!/^\d{8}$/.test(bbfs)) {
+    alert("Masukkan tepat 8 digit angka BBFS!");
+    return;
+  }
+  if (!/^\d{1,10}$/.test(angkaMain)) {
+    alert("Masukkan angka main (1 sampai 10 digit)!");
     return;
   }
 
-  const digits = input.split('');
+  const digits = bbfs.split('');
+  const filterSet = new Set(angkaMain.split(''));
   const results = [];
 
   for (let i = 0; i < digits.length; i++) {
     for (let j = 0; j < digits.length; j++) {
-      const combo = digits[i] + digits[j];
-      results.push(combo);
+      const d1 = digits[i];
+      const d2 = digits[j];
+      const combo = d1 + d2;
+
+      const matchMain = filterSet.has(d1) || filterSet.has(d2);
+      const matchEkor = filterSet.has(d2); // ekor adalah digit ke-2
+
+      if (matchMain || matchEkor) {
+        results.push(combo);
+      }
     }
   }
 
-  output.value = results.join('\n');
+  if (results.length === 0) {
+    output.value = "Tidak ada kombinasi yang cocok dengan filter.";
+    totalBox.textContent = '';
+  } else {
+    output.value = results.join('\n');
+    totalBox.textContent = `Total kombinasi ditampilkan: ${results.length}`;
+  }
 }
 </script>
 
