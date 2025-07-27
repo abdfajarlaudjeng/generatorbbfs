@@ -2,227 +2,68 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>BBFS Generator + Filter Lengkap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login Sistem</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
+      background: linear-gradient(to right, #e0f7fa, #fff);
+      font-family: 'Segoe UI', sans-serif;
     }
-    h2 { margin-bottom: 10px; }
-    .tabs button {
-      padding: 10px;
-      margin-right: 5px;
-      border: none;
-      background: #eee;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .tabs button.active { background: #4285f4; color: white; }
-    .panel { display: none; margin-top: 20px; }
-    .panel.active { display: block; }
-    input, textarea, button {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    textarea.output {
-      height: 250px;
-      font-family: monospace;
-      font-size: 14px;
-    }
-    .total { font-weight: bold; font-size: 16px; }
-    .pos-filter-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .pos-item input[type="text"] { width: 100%; margin-top: 5px; }
-    .angka-lemah { color: #d00; font-weight: bold; margin-top: 10px; }
   </style>
 </head>
-<body>
+<body class="d-flex align-items-center justify-content-center vh-100">
 
-<h2>BBFS Generator 2D/3D/4D + Filter Posisi & Shio</h2>
-
-<div class="tabs">
-  <button class="tabBtn active" onclick="showTab('panel2d')">2D</button>
-  <button class="tabBtn" onclick="showTab('panel3d')">3D</button>
-  <button class="tabBtn" onclick="showTab('panel4d')">4D</button>
-</div>
-
-<!-- Template Panel -->
-<div id="panel2d" class="panel active">
-  <input id="bbfs2d" placeholder="Masukkan 8 digit BBFS">
-  <textarea id="main2d" rows="5" placeholder="Angka main (baris terakhir digunakan)"></textarea>
-  <input id="shio2d" placeholder="Shio 1–12, pisahkan koma/spasi">
-  <input id="lemahDari2d" type="number" placeholder="Jarak Lemah Dari (0–99)">
-  <input id="lemahSampai2d" type="number" placeholder="Jarak Lemah Sampai (0–99)">
-  <div class="pos-filter-container">
-    <div class="pos-item"><label><input type="checkbox" class="pos-filter" data-pos="as"> AS</label>
-      <input type="text" class="pos-value" data-pos="as" placeholder="Contoh: 1,3,5">
+  <div class="bg-white rounded-4 shadow-lg p-4 w-100" style="max-width: 400px;">
+    <div class="text-center mb-4">
+      <i class="bi bi-shield-lock-fill text-primary" style="font-size: 2rem;"></i>
+      <h2 class="fw-bold mt-2">Selamat Datang</h2>
+      <p class="text-muted small">PENGGUNA BBFS 423D ALL PAS</p>
     </div>
-    <div class="pos-item"><label><input type="checkbox" class="pos-filter" data-pos="ekor"> EKOR</label>
-      <input type="text" class="pos-value" data-pos="ekor" placeholder="Contoh: 0,2,4">
+
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" id="username" class="form-control" placeholder="Masukkan username" />
     </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" id="password" class="form-control" placeholder="Masukkan password" />
+    </div>
+
+    <div class="d-grid mb-2">
+      <button onclick="login()" class="btn btn-primary">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
+      </button>
+    </div>
+    <p id="errorMsg" class="text-danger text-center small d-none"></p>
   </div>
-  <button onclick="generateBBFS('2d')">Generate 2D</button>
-  <button onclick="applyPositionalFilter('2d')">Terapkan Filter Posisi</button>
-  <button onclick="copyOutput('2d')">Salin Semua Hasil</button>
-  <button onclick="downloadOutput('2d')">Unduh Hasil</button>
-  <textarea id="output2d" class="output" readonly></textarea>
-  <div id="total2d" class="total"></div>
-  <div id="angkaLemah2d" class="angka-lemah"></div>
-</div>
 
-<!-- Panel 3D dan 4D bisa disalin dengan struktur sama -->
-<!-- Sesuaikan id dan isinya: 3d, 4d -->
+  <!-- Bootstrap JS (for future expansion if needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-function showTab(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tabBtn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-}
+  <script>
+    const validUser = "admin";
+    const validPass = "12345";
 
-function format2D(n) {
-  return n.toString().padStart(2, '0');
-}
+    function login() {
+      const u = document.getElementById("username").value.trim();
+      const p = document.getElementById("password").value.trim();
+      const errorMsg = document.getElementById("errorMsg");
 
-function generateAngkaLemahRange(dari, sampai) {
-  let hasil = [];
-  dari = parseInt(dari);
-  sampai = parseInt(sampai);
-  for (let i = 0; i <= 99; i++) {
-    if (dari <= sampai) {
-      if (i >= dari && i <= sampai) hasil.push(format2D(i));
-    } else {
-      if (i >= dari || i <= sampai) hasil.push(format2D(i));
-    }
-  }
-  return hasil;
-}
-
-function generateBBFS(mode) {
-  const bbfs = document.getElementById('bbfs' + mode).value.trim();
-  const mainText = document.getElementById('main' + mode).value.trim();
-  const shioInput = document.getElementById('shio' + mode).value.trim();
-  const output = document.getElementById('output' + mode);
-  const total = document.getElementById('total' + mode);
-  const lemahText = document.getElementById('angkaLemah' + mode);
-  const lemahDari = parseInt(document.getElementById('lemahDari' + mode)?.value || "0");
-  const lemahSampai = parseInt(document.getElementById('lemahSampai' + mode)?.value || "99");
-
-  output.value = '';
-  total.textContent = '';
-  lemahText.textContent = '';
-
-  if (!/^\d{8}$/.test(bbfs)) return alert("BBFS harus 8 digit.");
-  const lines = mainText.split('\n').filter(l => l.trim());
-  if (lines.length === 0 || lines.length > 5) return alert("Masukkan 1–5 baris angka main.");
-  const filterSet = new Set(lines.at(-1).split(''));
-  const shioSet = new Set(shioInput.split(/[, ]+/).map(s => parseInt(s)).filter(n => n >= 1 && n <= 12));
-  if (!shioSet.size) return alert("Masukkan minimal satu nomor shio.");
-
-  const d = bbfs.split('');
-  const hasil = [];
-  const angkaLemah = generateAngkaLemahRange(lemahDari, lemahSampai);
-  const len = mode === '2d' ? 2 : (mode === '3d' ? 3 : 4);
-
-  const loop = (prefix = '') => {
-    if (prefix.length === len) {
-      const last2 = parseInt(prefix.slice(-2), 10);
-      const strLast2 = format2D(last2);
-      const shioNum = last2 % 12 || 12;
-      const match = [...prefix].some(ch => filterSet.has(ch));
-      if (match && shioSet.has(shioNum) && !angkaLemah.includes(strLast2)) {
-        hasil.push(prefix);
+      if (u === validUser && p === validPass) {
+        localStorage.setItem("loggedIn", "true");
+        window.location.href = "dashboard.html";
+      } else {
+        errorMsg.textContent = "Username atau password salah!";
+        errorMsg.classList.remove("d-none");
       }
-      return;
     }
-    for (let x of d) loop(prefix + x);
-  };
-  loop();
-
-  output.value = hasil.join('*');
-  total.textContent = `Total kombinasi: ${hasil.length}`;
-  lemahText.textContent = `Angka lemah disaring: ${angkaLemah.join(', ')}`;
-}
-
-function applyPositionalFilter(mode) {
-  const panel = document.getElementById('panel' + mode);
-  const output = document.getElementById('output' + mode);
-  const total = document.getElementById('total' + mode);
-  const rawText = output.value.trim();
-
-  if (!rawText) {
-    alert("Belum ada kombinasi. Silakan klik 'Generate' dulu.");
-    return;
-  }
-
-  const lines = rawText.split(/[\s*]+/).filter(x => x);
-  const checkboxes = panel.querySelectorAll('.pos-filter');
-  const filters = {};
-
-  checkboxes.forEach(cb => {
-    if (cb.checked) {
-      const pos = cb.dataset.pos;
-      const valueInput = panel.querySelector(`.pos-value[data-pos="${pos}"]`);
-      const values = valueInput.value.split(/[, ]+/).map(v => v.trim()).filter(v => v !== '');
-      filters[pos] = new Set(values);
-    }
-  });
-
-  if (Object.keys(filters).length === 0) {
-    alert("Tidak ada filter posisi yang dipilih.");
-    return;
-  }
-
-  const hasil = lines.filter(line => {
-    const len = line.length;
-    for (let pos in filters) {
-      const valSet = filters[pos];
-      let digit = null;
-      if (pos === 'as' && len >= 1) digit = line[0];
-      if (pos === 'kop' && len >= 2) digit = line[1];
-      if (pos === 'kepala' && len >= 3) digit = line[2];
-      if (pos === 'ekor' && len >= 1) digit = line[len - 1];
-      if (digit === null || !valSet.has(digit)) return false;
-    }
-    return true;
-  });
-
-  output.value = hasil.join('*');
-  total.textContent = `Total kombinasi (setelah filter posisi): ${hasil.length}`;
-}
-
-function copyOutput(mode) {
-  const output = document.getElementById('output' + mode);
-  if (!output.value.trim()) return alert("Tidak ada data untuk disalin.");
-  output.select();
-  document.execCommand('copy');
-  alert("Hasil berhasil disalin ke clipboard!");
-}
-
-function downloadOutput(mode) {
-  const output = document.getElementById('output' + mode).value;
-  if (!output.trim()) {
-    alert("Belum ada hasil untuk diunduh.");
-    return;
-  }
-  const blob = new Blob([output.replace(/\*/g, '\n')], { type: 'text/plain' });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `bbfs-${mode}.txt`;
-  link.click();
-}
-</script>
+  </script>
 
 </body>
 </html>
