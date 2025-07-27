@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>BBFS Generator + Highlight & Responsive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Bootstrap CSS CDN -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .angka-weak { background: #f87171; color: white; padding: 2px 6px; border-radius: 3px; }
+    textarea.output { font-family: monospace; white-space: pre-wrap; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900 py-6">
+
+<div class="container mx-auto px-4">
+  <h2 class="text-2xl font-bold mb-4 text-center">BBFS GENERATOR 423D</h2>
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#panel2d">2D</a></li>
+    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#panel3d">3D</a></li>
+    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#panel4d">4D</a></li>
+  </ul>
+  <div class="tab-content">
+    <!-- Panel 2D -->
+    <div id="panel2d" class="tab-pane fade show active">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <input id="bbfs2d" class="form-control" placeholder="Masukkan 8 digit BBFS">
+        </div>
+        <div>
+          <textarea id="main2d" class="form-control" rows="5" placeholder="Angka main (baris terakhir digunakan)"></textarea>
+        </div>
+        <div>
+          <input id="shio2d" class="form-control" placeholder="Shio 1–12, pisahkan koma/spasi">
+        </div>
+        <div>
+          <div class="flex space-x-2">
+            <input id="lemahDari2d" type="number" class="form-control" placeholder="Jarak Lemah Dari (0–99)">
+            <input id="lemahSampai2d" type="number" class="form-control" placeholder="Jarak Lemah Sampai (0–99)">
+          </div>
+        </div>
+      </div>
+      <div class="pos-filter-container mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div><label><input type="checkbox" class="pos-filter" data-pos="as"> AS</label><input type="text" class="pos-value form-control" data-pos="as" placeholder="e.g. 1,3"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="ekor"> EKOR</label><input type="text" class="pos-value form-control" data-pos="ekor" placeholder="e.g. 4,5"></div>
+      </div>
+      <div class="space-x-2 mb-4">
+        <button onclick="generateBBFS('2d')" class="btn btn-primary">Generate 2D</button>
+        <button onclick="applyPositionalFilter('2d')" class="btn btn-secondary">Filter Posisi</button>
+        <button onclick="copyOutput('2d')" class="btn btn-info">Salin</button>
+        <button onclick="downloadOutput('2d')" class="btn btn-success">Unduh Hasil</button>
+      </div>
+      <textarea id="output2d" class="output form-control mb-2" readonly></textarea>
+      <div id="total2d" class="font-bold mb-1"></div>
+      <div id="angkaLemah2d" class="angka-lemah mb-2"></div>
+    </div>
+
+    <!-- Panel 3D -->
+    <div id="panel3d" class="tab-pane fade">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input id="bbfs3d" class="form-control" placeholder="BBFS 8 digit">
+        <textarea id="main3d" class="form-control" rows="5" placeholder="Main angka"></textarea>
+        <input id="shio3d" class="form-control" placeholder="Shio 1–12">
+        <div class="flex space-x-2">
+          <input id="lemahDari3d" type="number" class="form-control" placeholder="Lemah Dari">
+          <input id="lemahSampai3d" type="number" class="form-control" placeholder="Lemah Sampai">
+        </div>
+      </div>
+      <div class="pos-filter-container mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div><label><input type="checkbox" class="pos-filter" data-pos="as"> AS</label><input type="text" class="pos-value form-control" data-pos="as"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="kop"> KOP</label><input type="text" class="pos-value form-control" data-pos="kop"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="ekor"> EKOR</label><input type="text" class="pos-value form-control" data-pos="ekor"></div>
+      </div>
+      <div class="space-x-2 mb-4">
+        <button onclick="generateBBFS('3d')" class="btn btn-primary">Generate 3D</button>
+        <button onclick="applyPositionalFilter('3d')" class="btn btn-secondary">Filter Posisi</button>
+        <button onclick="copyOutput('3d')" class="btn btn-info">Salin</button>
+        <button onclick="downloadOutput('3d')" class="btn btn-success">Unduh</button>
+      </div>
+      <textarea id="output3d" class="output form-control mb-2" readonly></textarea>
+      <div id="total3d" class="font-bold mb-1"></div>
+      <div id="angkaLemah3d" class="angka-lemah mb-2"></div>
+    </div>
+
+    <!-- Panel 4D -->
+    <div id="panel4d" class="tab-pane fade">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input id="bbfs4d" class="form-control" placeholder="BBFS 8 digit">
+        <textarea id="main4d" class="form-control" rows="5" placeholder="Main angka"></textarea>
+        <input id="shio4d" class="form-control" placeholder="Shio 1–12">
+        <div class="flex space-x-2">
+          <input id="lemahDari4d" type="number" class="form-control" placeholder="Lemah Dari">
+          <input id="lemahSampai4d" type="number" class="form-control" placeholder="Lemah Sampai">
+        </div>
+      </div>
+      <div class="pos-filter-container mb-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div><label><input type="checkbox" class="pos-filter" data-pos="as"> AS</label><input type="text" class="pos-value form-control" data-pos="as"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="kop"> KOP</label><input type="text" class="pos-value form-control" data-pos="kop"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="kepala"> KEPALA</label><input type="text" class="pos-value form-control" data-pos="kepala"></div>
+        <div><label><input type="checkbox" class="pos-filter" data-pos="ekor"> EKOR</label><input type="text" class="pos-value form-control" data-pos="ekor"></div>
+      </div>
+      <div class="space-x-2 mb-4">
+        <button onclick="generateBBFS('4d')" class="btn btn-primary">Generate 4D</button>
+        <button onclick="applyPositionalFilter('4d')" class="btn btn-secondary">Filter Posisi</button>
+        <button onclick="copyOutput('4d')" class="btn btn-info">Salin</button>
+        <button onclick="downloadOutput('4d')" class="btn btn-success">Unduh</button>
+      </div>
+      <textarea id="output4d" class="output form-control mb-2" readonly></textarea>
+      <div id="total4d" class="font-bold mb-1"></div>
+      <div id="angkaLemah4d" class="angka-lemah mb-2"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// FG: menggunakan 2 digit untuk highlight
+function format2D(n){return n.toString().padStart(2,'0');}
+function generateAngkaLemahRange(dari,sampai){
+  const list=[];
+  for(let i=0;i<=99;i++){
+    const s=format2D(i);
+    if(dari<=sampai?(i>=dari&&i<=sampai):(i>=dari||i<=sampai)){
+      list.push(s);
+    }
+  }
+  return list;
+}
+function generateBBFS(mode){
+  const bbfs=document.getElementById('bbfs'+mode).value.trim();
+  const mainText=document.getElementById('main'+mode).value.trim();
+  const shioInput=document.getElementById('shio'+mode).value.trim();
+  const outputEl=document.getElementById('output'+mode);
+  const totalEl=document.getElementById('total'+mode);
+  const weakEl=document.getElementById('angkaLemah'+mode);
+  const dari=parseInt(document.getElementById('lemahDari'+mode).value)||0;
+  const sampai=parseInt(document.getElementById('lemahSampai'+mode).value)||99;
+  outputEl.value=''; totalEl.textContent=''; weakEl.textContent='';
+
+  if(!/^\d{8}$/.test(bbfs)) return alert('BBFS harus 8 digit');
+  const lines=mainText.split('\n').filter(l=>l.trim());
+  if(lines.length===0||lines.length>5) return alert('Masukkan 1–5 baris main');
+  const filterSet=new Set(lines.at(-1).split(''));
+  const shioSet=new Set(shioInput.split(/[, ]+/).map(x=>parseInt(x)).filter(n=>n>=1&&n<=12));
+  if(!shioSet.size) return alert('Masukkan minimal satu shio');
+  const digits=bbfs.split(''), hasil=[], weakList=generateAngkaLemahRange(dari,sampai);
+  const len = mode==='2d'?2:(mode==='3d'?3:4);
+  (function loop(pref=''){
+    if(pref.length===len){
+      const last2=parseInt(pref.slice(-2),10), s2=format2D(last2), shioNum=last2%12||12;
+      const match=[...pref].some(c=>filterSet.has(c));
+      if(match && shioSet.has(shioNum) && !weakList.includes(s2)) hasil.push(pref);
+      return;
+    }
+    digits.forEach(x=>loop(pref+x));
+  })();
+  // highlight numbers in output
+  const parts=hasil.map(num=>{
+    const s2=format2D(parseInt(num.slice(-2),10));
+    return weakList.includes(s2)?
+      `<span class="angka-weak">${num}</span>`:
+      `<span>${num}</span>`;
+  });
+  outputEl.innerHTML=parts.join('*');
+  totalEl.textContent=`Total kombinasi: ${hasil.length}`;
+  weakEl.textContent=`Angka lemah disaring: ${weakList.join(', ')}`;
+}
+function applyPositionalFilter(mode){
+  const panel=document.getElementById('panel'+mode);
+  const out=document.getElementById('output'+mode);
+  const total=document.getElementById('total'+mode);
+  if(!out.innerHTML) return alert('Generate dulu');
+  const elems=out.innerHTML.split('*');
+  const values=elems.map(e=>e.replace(/<[^>]*>/g,''));
+  const checkboxes=panel.querySelectorAll('.pos-filter');
+  const filters={};
+  checkboxes.forEach(cb=>{
+    if(cb.checked){
+      const pos=cb.dataset.pos;
+      const v=panel.querySelector(`.pos-value[data-pos="${pos}"]`).value;
+      filters[pos]=new Set(v.split(/[, ]+/).map(x=>x.trim()).filter(x=>x));
+    }
+  });
+  if(!Object.keys(filters).length) return alert('Tidak ada filter posisi');
+  const filtered = values.filter(line=>{
+    for(const pos in filters){
+      let d=null;
+      if(pos==='as') d=line[0];
+      if(pos==='kop') d=line[1];
+      if(pos==='kepala') d=line[2];
+      if(pos==='ekor') d=line[line.length-1];
+      if(!d || !filters[pos].has(d)) return false;
+    }
+    return true;
+  });
+  document.getElementById('output'+mode).innerHTML = filtered.map(n=>`<span>${n}</span>`).join('*');
+  total.textContent=`Total kombinasi (setelah filter posisi): ${filtered.length}`;
+}
+function copyOutput(mode){
+  const html=document.getElementById('output'+mode).innerHTML;
+  const text=html.replace(/<[^>]*>/g,'').replace(/\*/g,'\n');
+  navigator.clipboard.writeText(text).then(()=>alert('Disalin ke clipboard'));
+}
+function downloadOutput(mode){
+  const html=document.getElementById('output'+mode).innerHTML;
+  const text=html.replace(/<[^>]*>/g,'').replace(/\*/g,'\n');
+  const blob=new Blob([text],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`bbfs-${mode}.txt`; a.click();
+}
+</script>
+
+<!-- Bootstrap JS (untuk tabs) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
